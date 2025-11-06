@@ -16,10 +16,10 @@ const {
   verifyAuthenticationResponse,
 } = require('@simplewebauthn/server');
 
-// Relying Party (RP) details for localhost demo
+// Relying Party (RP) details
 const rpName = 'Passkey Demo';
-const rpID = 'localhost'; // For localhost testing
-const origin = 'http://localhost:3000';
+// rpID and origin will be computed from the incoming request so this app
+// works both on http://localhost:3000 and on production domains (e.g. Render)
 
 // In-memory store for demo purposes (not for production!)
 // Structure:
@@ -42,6 +42,8 @@ const origin = 'http://localhost:3000';
 const users = Object.create(null);
 
 const app = express();
+// So req.protocol reflects the upstream protocol (https on Render)
+app.set('trust proxy', 1);
 
 // Helmet with CSP disabled so CDN scripts can load easily in this demo
 app.use(
@@ -54,6 +56,17 @@ app.use(express.json());
 
 // Serve static frontend files from /public
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Compute RP ID and Origin from the request
+function getRPContext(req) {
+  const hostHeader = req.headers.host || 'localhost:3000';
+  const host = Array.isArray(hostHeader) ? hostHeader[0] : hostHeader;
+  const hostname = host.split(':')[0];
+  const protocol = req.protocol || 'http';
+  // Keep port if present when on localhost; browsers accept http on localhost
+  const computedOrigin = `${protocol}://${host}`;
+  return { rpID: hostname, origin: computedOrigin };
+}
 
 // Helper: get or create a user record in memory
 function getOrCreateUser(username) {
@@ -77,6 +90,7 @@ app.post('/webauthn/generate-registration-options', async (req, res) => {
       return res.status(400).json({ error: 'Username is required' });
     }
     const user = getOrCreateUser(username);
+    const { rpID, origin } = getRPContext(req);
 
     const options = await generateRegistrationOptions({
       rpName,
@@ -116,6 +130,7 @@ app.post('/webauthn/verify-registration', async (req, res) => {
       return res.status(400).json({ error: 'username and attestationResponse are required' });
     }
     const user = users[username];
+    const { rpID, origin } = getRPContext(req);
     if (!user || !user.currentChallenge) {
       return res.status(400).json({ error: 'No registration in progress for this user' });
     }
@@ -178,6 +193,7 @@ app.post('/webauthn/generate-authentication-options', async (req, res) => {
       return res.status(400).json({ error: 'Username is required' });
     }
     const user = users[username];
+    const { rpID } = getRPContext(req);
     if (!user || user.credentials.length === 0) {
       return res.status(400).json({ error: 'User not found or no credentials registered' });
     }
@@ -214,6 +230,7 @@ app.post('/webauthn/verify-authentication', async (req, res) => {
       return res.status(400).json({ error: 'username and assertionResponse are required' });
     }
     const user = users[username];
+    const { rpID, origin } = getRPContext(req);
     if (!user || !user.currentChallenge) {
       return res.status(400).json({ error: 'No authentication in progress for this user' });
     }
