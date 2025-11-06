@@ -1,0 +1,253 @@
+// Minimal Passkey (WebAuthn) demo using Node.js + Express.
+// Backend uses @simplewebauthn/server to generate/verify options and responses.
+// Frontend (served from /public) uses @simplewebauthn/browser via CDN.
+
+const express = require('express');
+const helmet = require('helmet');
+const path = require('path');
+const { nanoid } = require('nanoid');
+const crypto = require('crypto');
+
+// SimpleWebAuthn server helpers
+const {
+  generateRegistrationOptions,
+  verifyRegistrationResponse,
+  generateAuthenticationOptions,
+  verifyAuthenticationResponse,
+} = require('@simplewebauthn/server');
+
+// Relying Party (RP) details for localhost demo
+const rpName = 'Passkey Demo';
+const rpID = 'localhost'; // For localhost testing
+const origin = 'http://localhost:3000';
+
+// In-memory store for demo purposes (not for production!)
+// Structure:
+// users = {
+//   [username]: {
+//     id: string, // human-readable id (not used for WebAuthn anymore)
+//     userID: Buffer, // stable binary user id required by SimpleWebAuthn v10+
+//     username: string,
+//     credentials: [
+//       {
+//         credentialID: Buffer,
+//         credentialPublicKey: Buffer,
+//         counter: number,
+//         transports?: string[],
+//       }
+//     ],
+//     currentChallenge?: string,
+//   }
+// }
+const users = Object.create(null);
+
+const app = express();
+
+// Helmet with CSP disabled so CDN scripts can load easily in this demo
+app.use(
+  helmet({
+    contentSecurityPolicy: false,
+  }),
+);
+
+app.use(express.json());
+
+// Serve static frontend files from /public
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Helper: get or create a user record in memory
+function getOrCreateUser(username) {
+  if (!users[username]) {
+    users[username] = {
+      id: nanoid(),
+      // Stable binary user id (32 random bytes) per user as required by SWA v10+
+      userID: crypto.randomBytes(32),
+      username,
+      credentials: [],
+    };
+  }
+  return users[username];
+}
+
+// Registration: Generate options
+app.post('/webauthn/generate-registration-options', async (req, res) => {
+  try {
+    const { username } = req.body || {};
+    if (!username || typeof username !== 'string') {
+      return res.status(400).json({ error: 'Username is required' });
+    }
+    const user = getOrCreateUser(username);
+
+    const options = await generateRegistrationOptions({
+      rpName,
+      rpID,
+      // SimpleWebAuthn v10+ requires a BufferSource/Uint8Array, not a string
+      userID: user.userID,
+      userName: user.username,
+      attestationType: 'none',
+      // Encourage discoverable credentials (aka passkeys), but do not require
+      authenticatorSelection: {
+        residentKey: 'preferred',
+        userVerification: 'preferred',
+      },
+      // Prevent registering duplicate credentials for this user
+      excludeCredentials: user.credentials.map((cred) => ({
+        id: cred.credentialID,
+        type: 'public-key',
+        transports: cred.transports,
+      })),
+    });
+
+    user.currentChallenge = options.challenge;
+
+    return res.json(options);
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('Error generating registration options', err && err.stack ? err.stack : err);
+    return res.status(500).json({ error: 'Failed to generate registration options', message: err && err.message ? err.message : String(err) });
+  }
+});
+
+// Registration: Verify response
+app.post('/webauthn/verify-registration', async (req, res) => {
+  try {
+    const { username, attestationResponse } = req.body || {};
+    if (!username || !attestationResponse) {
+      return res.status(400).json({ error: 'username and attestationResponse are required' });
+    }
+    const user = users[username];
+    if (!user || !user.currentChallenge) {
+      return res.status(400).json({ error: 'No registration in progress for this user' });
+    }
+
+    const verification = await verifyRegistrationResponse({
+      response: attestationResponse,
+      expectedChallenge: user.currentChallenge,
+      expectedOrigin: origin,
+      expectedRPID: rpID,
+    });
+
+    const { verified, registrationInfo } = verification;
+    if (verified && registrationInfo) {
+      const {
+        credentialPublicKey,
+        credentialID,
+        counter,
+        credentialDeviceType,
+        credentialBackedUp,
+        transports,
+      } = registrationInfo;
+
+      // Normalize to Buffers (SWA v10 may return base64url strings)
+      const credentialIDBuf =
+        typeof credentialID === 'string' ? Buffer.from(credentialID, 'base64url') : Buffer.from(credentialID);
+      const credentialPublicKeyBuf =
+        typeof credentialPublicKey === 'string'
+          ? Buffer.from(credentialPublicKey, 'base64url')
+          : Buffer.from(credentialPublicKey);
+
+      // If credentialID already exists, skip adding
+      const existing = user.credentials.find((c) => Buffer.compare(c.credentialID, credentialIDBuf) === 0);
+      if (!existing) {
+        user.credentials.push({
+          credentialID: credentialIDBuf,
+          credentialPublicKey: credentialPublicKeyBuf,
+          counter,
+          transports,
+          // Not strictly needed here, but could be informative
+          credentialDeviceType,
+          credentialBackedUp,
+        });
+      }
+      user.currentChallenge = undefined;
+    }
+
+    return res.json({ verified });
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('Error verifying registration', err);
+    return res.status(400).json({ error: 'Registration verification failed' });
+  }
+});
+
+// Authentication: Generate options
+app.post('/webauthn/generate-authentication-options', async (req, res) => {
+  try {
+    const { username } = req.body || {};
+    if (!username || typeof username !== 'string') {
+      return res.status(400).json({ error: 'Username is required' });
+    }
+    const user = users[username];
+    if (!user || user.credentials.length === 0) {
+      return res.status(400).json({ error: 'User not found or no credentials registered' });
+    }
+
+    const options = await generateAuthenticationOptions({
+      rpID,
+      allowCredentials: user.credentials.map((cred) => ({
+        // Library expects base64url string here
+        id: Buffer.isBuffer(cred.credentialID)
+          ? cred.credentialID.toString('base64url')
+          : typeof cred.credentialID === 'string'
+            ? cred.credentialID
+            : Buffer.from(cred.credentialID).toString('base64url'),
+        type: 'public-key',
+        transports: cred.transports,
+      })),
+      userVerification: 'preferred',
+    });
+
+    user.currentChallenge = options.challenge;
+    return res.json(options);
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('Error generating authentication options', err);
+    return res.status(500).json({ error: 'Failed to generate authentication options' });
+  }
+});
+
+// Authentication: Verify response
+app.post('/webauthn/verify-authentication', async (req, res) => {
+  try {
+    const { username, assertionResponse } = req.body || {};
+    if (!username || !assertionResponse) {
+      return res.status(400).json({ error: 'username and assertionResponse are required' });
+    }
+    const user = users[username];
+    if (!user || !user.currentChallenge) {
+      return res.status(400).json({ error: 'No authentication in progress for this user' });
+    }
+
+    // Locate the matching credential
+    const dbAuthenticator = user.credentials.find((cred) => Buffer.compare(cred.credentialID, Buffer.from(assertionResponse.rawId, 'base64url')) === 0);
+
+    const verification = await verifyAuthenticationResponse({
+      response: assertionResponse,
+      expectedChallenge: user.currentChallenge,
+      expectedOrigin: origin,
+      expectedRPID: rpID,
+      authenticator: dbAuthenticator,
+    });
+
+    const { verified, authenticationInfo } = verification;
+    if (verified && authenticationInfo && dbAuthenticator) {
+      const { newCounter } = authenticationInfo;
+      dbAuthenticator.counter = newCounter;
+      user.currentChallenge = undefined;
+    }
+
+    return res.json({ verified });
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('Error verifying authentication', err);
+    return res.status(400).json({ error: 'Authentication verification failed' });
+  }
+});
+
+const PORT = 3000;
+app.listen(PORT, () => {
+  // eslint-disable-next-line no-console
+  console.log(`Passkey demo listening on http://localhost:${PORT}`);
+});
+
+

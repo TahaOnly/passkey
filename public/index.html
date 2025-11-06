@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Passkey Demo (WebAuthn)</title>
+    <style>
+      body { font-family: -apple-system, system-ui, Segoe UI, Roboto, Helvetica, Arial, sans-serif; margin: 40px; }
+      .card { max-width: 520px; padding: 24px; border: 1px solid #e5e7eb; border-radius: 12px; }
+      h1 { margin-top: 0; font-size: 22px; }
+      label { display: block; font-weight: 600; margin-bottom: 6px; }
+      input { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; }
+      .row { display: flex; gap: 12px; margin-top: 12px; }
+      button { padding: 10px 14px; border-radius: 8px; border: 1px solid #d1d5db; background: #111827; color: #fff; cursor: pointer; }
+      button.secondary { background: #fff; color: #111827; }
+      .log { white-space: pre-wrap; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 12px; background: #0b1020; color: #c7d2fe; padding: 12px; border-radius: 8px; margin-top: 16px; max-height: 220px; overflow: auto; }
+    </style>
+    <!-- Load SimpleWebAuthn for the browser via CDN -->
+    <script src="https://unpkg.com/@simplewebauthn/browser@^10.0.0/dist/bundle/index.umd.min.js"></script>
+  </head>
+  <body>
+    <div class="card">
+      <h1>Passkey Demo</h1>
+      <p>Enter a username, then click Register to create a passkey, or Login to authenticate.</p>
+
+      <label for="username">Username</label>
+      <input id="username" name="username" placeholder="alice" />
+
+      <div class="row">
+        <button id="registerBtn">Register</button>
+        <button id="loginBtn" class="secondary">Login</button>
+      </div>
+
+      <div id="log" class="log" aria-live="polite"></div>
+    </div>
+
+    <script src="/register.js"></script>
+    <script src="/login.js"></script>
+  </body>
+  </html>
+
+

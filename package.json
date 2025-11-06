@@ -1,0 +1,25 @@
+{
+  "name": "passkey-demo",
+  "version": "1.0.0",
+  "description": "Minimal Passkey (WebAuthn) demo with Node.js, Express, and SimpleWebAuthn",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "webauthn",
+    "passkey",
+    "express",
+    "simplewebauthn"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@simplewebauthn/server": "^10.0.0",
+    "express": "^4.19.2",
+    "helmet": "^7.1.0",
+    "nanoid": "^5.0.7"
+  }
+}
+
+
