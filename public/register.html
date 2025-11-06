@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Passkeys Mockup · Create account</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- SimpleWebAuthn Browser via CDN -->
+    <script src="https://unpkg.com/@simplewebauthn/browser@^10.0.0/dist/bundle/index.umd.min.js"></script>
+  </head>
+  <body class="bg-slate-50 min-h-dvh">
+    <header class="max-w-2xl mx-auto px-4 py-6 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="h-8 w-8 rounded-full bg-blue-600 text-white grid place-items-center font-semibold">P</div>
+        <div class="text-slate-900 font-semibold">Passkeys Mockup <span class="text-slate-500 font-normal">by Sumair &amp; Taha</span></div>
+      </div>
+      <button class="md:hidden p-2 text-slate-500" aria-label="Close">✕</button>
+    </header>
+
+    <main class="px-4">
+      <div class="max-w-xl mx-auto bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
+        <h2 class="text-3xl font-extrabold text-slate-900">Create account</h2>
+
+        <label for="email" class="block mt-6 text-sm font-medium text-slate-700">Email</label>
+        <input id="email" type="email" placeholder="you@example.com" class="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600" />
+
+        <button id="registerBtn" class="mt-6 w-full rounded-xl bg-blue-600 text-white text-lg font-semibold py-3 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-600">Create Account</button>
+
+        <p class="mt-6 text-center text-slate-600">Already have an account? <a href="/login.html" class="text-blue-600 hover:underline">Sign in</a></p>
+
+        <pre id="log" class="mt-6 hidden whitespace-pre-wrap text-xs bg-slate-900 text-indigo-200 rounded-xl p-4"></pre>
+      </div>
+    </main>
+
+    <script src="/register-page.js"></script>
+  </body>
+  </html>
+
+

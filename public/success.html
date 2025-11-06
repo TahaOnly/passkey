@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Passkeys Mockup · Welcome</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-slate-50 min-h-dvh">
+    <header class="max-w-2xl mx-auto px-4 py-6 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="h-8 w-8 rounded-full bg-blue-600 text-white grid place-items-center font-semibold">P</div>
+        <div class="text-slate-900 font-semibold">Passkeys Mockup <span class="text-slate-500 font-normal">by Sumair &amp; Taha</span></div>
+      </div>
+      <button class="md:hidden p-2 text-slate-500" aria-label="Close">✕</button>
+    </header>
+
+    <main class="px-4">
+      <div class="max-w-xl mx-auto bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8 text-center">
+        <h2 class="text-3xl font-extrabold text-slate-900">Welcome!</h2>
+        <p class="mt-2 text-slate-700">You are logged in as <span id="who" class="font-semibold"></span></p>
+
+        <div class="mt-6 grid gap-3">
+          <button id="signOutBtn" class="w-full rounded-xl bg-blue-600 text-white text-lg font-semibold py-3 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-600">Sign out</button>
+          <button id="deleteBtn" class="w-full rounded-xl border border-red-300 text-red-600 text-lg font-semibold py-3 hover:bg-red-50">Delete Account</button>
+        </div>
+
+        <p id="note" class="mt-6 text-xs text-slate-500"></p>
+      </div>
+    </main>
+
+    <script src="/success.js"></script>
+  </body>
+  </html>
+
+
