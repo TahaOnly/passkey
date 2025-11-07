@@ -13,13 +13,32 @@
   });
 
   deleteBtn?.addEventListener('click', async () => {
-    // Frontend-only demo: no backend endpoint exists to delete the server-side user.
-    // We clear the local client state and inform the user how to fully reset.
-    localStorage.removeItem('demo.username');
-    if (noteEl) {
-      noteEl.textContent = 'Demo note: This app uses in-memory storage on the server. Restarting the server clears users/credentials. Removing a passkey from your device must be done in the device\'s Password Manager.';
+    if (!username) {
+      if (noteEl) {
+        noteEl.textContent = 'Unable to determine which user to delete. Please register or sign in again.';
+      }
+      return;
     }
-    setTimeout(() => (window.location.href = '/login.html'), 1000);
+    try {
+      const res = await fetch('/webauthn/delete-user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username }),
+      });
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`HTTP ${res.status}: ${text}`);
+      }
+      localStorage.removeItem('demo.username');
+      if (noteEl) {
+        noteEl.textContent = 'Account removed from the demo server. To fully revoke the passkey, delete it from your device\'s Password Manager.';
+      }
+      setTimeout(() => (window.location.href = '/register.html'), 1000);
+    } catch (err) {
+      if (noteEl) {
+        noteEl.textContent = `Failed to delete account: ${err?.message || err}`;
+      }
+    }
   });
 })();
 

@@ -261,6 +261,21 @@ app.post('/webauthn/verify-authentication', async (req, res) => {
   }
 });
 
+// Delete a user and all associated credentials (demo-only utility)
+app.post('/webauthn/delete-user', (req, res) => {
+  const { username } = req.body || {};
+  if (!username || typeof username !== 'string') {
+    return res.status(400).json({ error: 'Username is required' });
+  }
+
+  if (!users[username]) {
+    return res.status(404).json({ error: 'User not found' });
+  }
+
+  delete users[username];
+  return res.json({ deleted: true });
+});
+
 const PORT = 3000;
 app.listen(PORT, () => {
   // eslint-disable-next-line no-console
