@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Delete Account</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-[#f9f9fc] flex flex-col items-center justify-center min-h-screen text-gray-900">
+
+  <header class="w-full flex justify-between items-center px-4 py-3">
+    <div class="flex items-center space-x-2">
+      <div class="rounded-full bg-blue-600 w-6 h-6 flex items-center justify-center text-white font-bold">P</div>
+      <span class="font-semibold text-gray-700">Passwords Mockup</span>
+      <span class="text-sm text-gray-500">by Sumair & Taha</span>
+    </div>
+    <a href="account.html" class="text-gray-600 text-2xl font-bold">&#10005;</a>
+  </header>
+
+  <main class="w-full max-w-sm bg-white p-6 rounded-xl shadow-sm text-center">
+    <h1 class="text-2xl font-semibold mb-4 text-red-600">Delete Account</h1>
+    <p class="text-gray-600 mb-6">Are you sure you want to permanently delete your account?</p>
+
+    <div class="flex flex-col space-y-3">
+      <button onclick="confirmDelete()" class="bg-red-600 text-white py-3 rounded-lg hover:bg-red-700 transition">Yes, delete my account</button>
+      <a href="account.html" class="border border-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-50 transition">Cancel</a>
+    </div>
+  </main>
+
+<script>
+  function confirmDelete() {
+    localStorage.removeItem('userEmail');
+    localStorage.removeItem('userPassword');
+    localStorage.removeItem('isLoggedIn');
+    alert('Account deleted!');
+    window.location.href = 'index.html';
+  }
+</script>
+</body>
+</html>
