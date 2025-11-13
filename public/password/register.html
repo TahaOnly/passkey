@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Password Create Account</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
   </head>
   <body class="bg-slate-50 min-h-dvh">
     <header class="max-w-2xl mx-auto px-4 py-6 flex items-center justify-between">
@@ -26,13 +32,54 @@
           </div>
           <div>
             <label for="password" class="block text-sm font-medium text-slate-700">Password</label>
-            <input id="password" type="password" placeholder="••••••••" required class="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600" />
+            <div class="mt-2 relative">
+              <input
+                id="password"
+                type="password"
+                placeholder="Create a strong password"
+                autocomplete="new-password"
+                required
+                class="w-full rounded-xl border border-slate-300 px-4 py-3 pr-12 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600"
+              />
+              <button
+                id="togglePassword"
+                type="button"
+                class="absolute inset-y-0 right-0 px-3 text-slate-500 hover:text-slate-700 focus:outline-none"
+                aria-label="Show password"
+              >
+                <i class="fa-solid fa-eye" aria-hidden="true"></i>
+              </button>
+            </div>
+            <div class="mt-3 space-y-2">
+              <div class="h-2 w-full bg-slate-200 rounded-full overflow-hidden">
+                <div id="passwordStrengthBar" class="h-full w-0 rounded-full transition-all duration-200 bg-red-500"></div>
+              </div>
+              <p id="passwordStrengthText" class="text-sm text-slate-600"></p>
+            </div>
           </div>
           <div>
             <label for="confirm" class="block text-sm font-medium text-slate-700">Confirm password</label>
-            <input id="confirm" type="password" placeholder="••••••••" required class="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600" />
+            <div class="mt-2 relative">
+              <input
+                id="confirm"
+                type="password"
+                placeholder="Re-enter your password"
+                autocomplete="new-password"
+                required
+                class="w-full rounded-xl border border-slate-300 px-4 py-3 pr-12 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600"
+              />
+              <button
+                id="toggleConfirmPassword"
+                type="button"
+                class="absolute inset-y-0 right-0 px-3 text-slate-500 hover:text-slate-700 focus:outline-none"
+                aria-label="Show confirm password"
+              >
+                <i class="fa-solid fa-eye" aria-hidden="true"></i>
+              </button>
+            </div>
+            <p id="passwordMatchText" class="mt-2 text-sm"></p>
           </div>
-          <p id="registerMessage" class="text-sm h-5 text-center text-red-600"></p>
+          <p id="registerMessage" class="text-sm h-5 text-center"></p>
           <button type="submit" class="w-full rounded-xl bg-blue-600 text-white text-lg font-semibold py-3 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-600">Create Account</button>
         </form>
 
@@ -44,6 +91,7 @@
       </div>
     </main>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/zxcvbn/4.4.2/zxcvbn.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="/password/register.js"></script>
   </body>
   </html>

@@ -2,6 +2,8 @@
   const form = document.getElementById('loginForm');
   const emailInput = document.getElementById('email');
   const passwordInput = document.getElementById('password');
+  const toggleLoginPasswordBtn = document.getElementById('toggleLoginPassword');
+  const toggleLoginPasswordIcon = toggleLoginPasswordBtn?.querySelector('i');
   const messageEl = document.getElementById('loginMessage');
 
   function showMessage(text, type = 'error') {
@@ -19,6 +21,32 @@
     const emailRegex = /^[^\s@]+@[^\s@]+\.(com|net|org|edu|co|io|gov|pk)$/i;
     return emailRegex.test(email);
   }
+
+  function setVisibility(input, button, icon, visible) {
+    if (!input || !button || !icon) {
+      return;
+    }
+    input.type = visible ? 'text' : 'password';
+    button.setAttribute('aria-pressed', visible ? 'true' : 'false');
+    icon.classList.toggle('fa-eye', !visible);
+    icon.classList.toggle('fa-eye-slash', visible);
+  }
+
+  function attachToggleVisibility(button, input, icon) {
+    if (!button || !input || !icon) {
+      return;
+    }
+    let visible = false;
+    const apply = () => setVisibility(input, button, icon, visible);
+    button.addEventListener('click', (event) => {
+      event.preventDefault();
+      visible = !visible;
+      apply();
+    });
+    apply();
+  }
+
+  attachToggleVisibility(toggleLoginPasswordBtn, passwordInput, toggleLoginPasswordIcon);
 
   form?.addEventListener('submit', (event) => {
     event.preventDefault();
