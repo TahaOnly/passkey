@@ -3,12 +3,10 @@
   const logEl = document.getElementById('log');
   const emailEl = document.getElementById('email');
   const registerBtn = document.getElementById('registerBtn');
+  const emailErrorEl = document.getElementById('emailError');
 
-  function showLog(msg) {
+  function showLog(_msg) {
     if (!logEl) return;
-    logEl.classList.remove('hidden');
-    const ts = new Date().toISOString();
-    logEl.textContent += `\n[${ts}] ${msg}`;
   }
 
   async function postJSON(url, data) {
@@ -24,12 +22,34 @@
     return res.json();
   }
 
+  function showEmailError(message) {
+    if (!emailErrorEl) return;
+    emailErrorEl.textContent = message;
+    emailErrorEl.classList.remove('hidden');
+  }
+
+  function clearEmailError() {
+    if (!emailErrorEl) return;
+    emailErrorEl.classList.add('hidden');
+  }
+
+  function isValidEmail(value) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+  }
+
+  emailEl?.addEventListener('input', clearEmailError);
+
   registerBtn?.addEventListener('click', async () => {
     const username = (emailEl?.value || '').trim();
     if (!username) {
-      showLog('Please enter your email');
+      showEmailError('Please enter your email address.');
       return;
     }
+    if (!isValidEmail(username)) {
+      showEmailError('Please enter a valid email address.');
+      return;
+    }
+    clearEmailError();
     try {
       showLog('Requesting registration options...');
       const options = await postJSON('/webauthn/generate-registration-options', { username });

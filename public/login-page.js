@@ -4,11 +4,8 @@
   const emailEl = document.getElementById('email');
   const loginBtn = document.getElementById('loginBtn');
 
-  function showLog(msg) {
+  function showLog(_msg) {
     if (!logEl) return;
-    logEl.classList.remove('hidden');
-    const ts = new Date().toISOString();
-    logEl.textContent += `\n[${ts}] ${msg}`;
   }
 
   async function postJSON(url, data) {
