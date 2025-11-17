@@ -97,7 +97,9 @@
   }
 
   function isValidEmail(email) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.(com|net|org|edu|co|io|gov|pk)$/i;
+    // const emailRegex = /^[^\s@]+@[^\s@]+\.(com|net|org|edu|co|io|gov|pk)$/i;
+    const emailRegex = /^[a-z0-9](\.?[a-z0-9]){5,}@[a-z0-9-]+(\.[a-z0-9-]+)*\.(com|net|org|edu|co|io|gov|pk)$/i;
+    // const emailRegex = /^[a-z0-9](\.?[a-z0-9]){5,}@[a-z0-9-]+(\.[a-z0-9-]+)*\.[a-z]{2,63}$/i;
     return emailRegex.test(email);
   }
 
@@ -287,6 +289,12 @@
     if (!isValidEmail(email)) {
       logSubmissionFailure('invalid_email_format', { emailLength });
       showMessage('Enter a valid email (e.g., name@example.com).');
+      return;
+    }
+
+    if (passwordLength == email) {
+      logSubmissionFailure('password_and_email_are_the_same', { password, email });
+      showMessage('Password and email cannot be the same.');
       return;
     }
 
