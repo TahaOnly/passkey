@@ -27,16 +27,32 @@
       </div>
     </main>
 
+    <script src="/logger.js"></script>
     <script>
-      document.getElementById('confirmDelete')?.addEventListener('click', () => {
+      // Initialize logger for password delete task
+      window.initLogger('delete_password_account');
+
+      const confirmDeleteBtn = document.getElementById('confirmDelete');
+      const cancelLink = document.querySelector('a[href="/password/account.html"]');
+
+      confirmDeleteBtn?.addEventListener('click', () => {
+        window.logEvent('click_delete_account_button', { location: 'password_delete' });
+        const email = localStorage.getItem('password.userEmail') || '';
+        window.logEvent('localstorage_user_deleted', { emailLength: email.length });
         localStorage.removeItem('password.userEmail');
         localStorage.removeItem('password.userPassword');
         localStorage.removeItem('password.isLoggedIn');
+        window.logTaskCompletion(true, { action: 'account_deleted' });
         alert('Account deleted!');
         window.location.href = '/password/login.html';
       });
+
+      cancelLink?.addEventListener('click', () => {
+        window.logEvent('click_cancel_delete_button', { location: 'password_delete' });
+        window.logEvent('navigate_to_account', { destination: '/password/account.html' });
+      });
     </script>
   </body>
-  </html>
+</html>
 
 

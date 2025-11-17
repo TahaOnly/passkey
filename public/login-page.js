@@ -1,8 +1,12 @@
 // Tailwind-styled login page logic using existing backend endpoints
 (function () {
+  // Initialize logger for passkey login task
+  window.initLogger('login_passkey');
+
   const logEl = document.getElementById('log');
   const emailEl = document.getElementById('email');
   const loginBtn = document.getElementById('loginBtn');
+  const registerLink = document.querySelector('a[href="/register.html"]');
 
   function showLog(_msg) {
     if (!logEl) return;
@@ -21,15 +25,43 @@
     return res.json();
   }
 
+  emailEl?.addEventListener('focus', () => {
+    window.logEvent('email_focus');
+  });
+  emailEl?.addEventListener('blur', () => {
+    window.logEvent('email_blur');
+  });
+  emailEl?.addEventListener('input', (event) => {
+    const value = event.target?.value || '';
+    window.logEvent('email_changed', { length: value.length, inputType: event.inputType || 'unknown' });
+  });
+  emailEl?.addEventListener('paste', (event) => {
+    const pasted = event.clipboardData?.getData('text') || '';
+    window.logEvent('email_paste', { length: pasted.length });
+  });
+
+  registerLink?.addEventListener('click', () => {
+    window.logEvent('navigate_to_register', { source: 'passkey_login', destination: '/register.html' });
+  });
+
   loginBtn?.addEventListener('click', async () => {
+    window.logEvent('click_login_button', { source: 'passkey_login' });
+    window.logEvent('passkey_login_started', { trigger: 'button_click' });
+
     const username = (emailEl?.value || '').trim();
     if (!username) {
+      window.logEvent('invalid_email_format', { emailLength: 0, reason: 'empty' });
       showLog('Please enter your email');
       return;
     }
+
     try {
       showLog('Requesting authentication options...');
       const options = await postJSON('/webauthn/generate-authentication-options', { username });
+      window.logEvent('passkey_login_prompt_shown', {
+        challengeLength: options?.challenge?.length || 0,
+        userVerification: options?.userVerification || 'preferred',
+      });
 
       showLog('Starting WebAuthn authentication...');
       const assertionResponse = await SimpleWebAuthnBrowser.startAuthentication(options);
@@ -41,12 +73,29 @@
       });
 
       if (verification?.verified) {
+        window.logEvent('passkey_login_success', {
+          credentialId: assertionResponse?.id || 'unknown',
+        });
         localStorage.setItem('demo.username', username);
+        window.logTaskCompletion(true, {
+          emailLength: username.length,
+          credentialId: assertionResponse?.id || 'unknown',
+        });
         window.location.href = '/success.html';
       } else {
+        window.logEvent('passkey_login_error', { error: 'verification_failed' });
+        window.logTaskFailure({ error: 'verification_failed' });
         showLog('Login failed or not verified');
       }
     } catch (err) {
+      window.logEvent('passkey_login_error', {
+        error: err?.message || String(err),
+        errorName: err?.name || 'unknown',
+      });
+      window.logTaskFailure({
+        error: err?.message || String(err),
+        errorName: err?.name || 'unknown',
+      });
       showLog(`Authentication error: ${err?.message || err}`);
     }
   });

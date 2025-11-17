@@ -5,6 +5,7 @@
 const express = require('express');
 const helmet = require('helmet');
 const path = require('path');
+const fs = require('fs');
 const { nanoid } = require('nanoid');
 const crypto = require('crypto');
 
@@ -274,6 +275,48 @@ app.post('/webauthn/delete-user', (req, res) => {
 
   delete users[username];
   return res.json({ deleted: true });
+});
+
+// Research logging endpoint
+// Logs user interactions to files for research analysis
+app.post('/api/log', (req, res) => {
+  try {
+    const { sessionId, task, event, timestamp, metadata } = req.body;
+
+    // Validate required fields
+    if (!sessionId || !task || !event || !timestamp) {
+      return res.status(400).json({ error: 'Missing required fields: sessionId, task, event, timestamp' });
+    }
+
+    // Ensure logs directory exists
+    const logsDir = path.join(__dirname, 'logs');
+    if (!fs.existsSync(logsDir)) {
+      fs.mkdirSync(logsDir, { recursive: true });
+    }
+
+    // Sanitize sessionId for filename (only alphanumeric, dash, underscore)
+    const safeSessionId = sessionId.replace(/[^a-zA-Z0-9_-]/g, '_');
+    const logFile = path.join(logsDir, `${safeSessionId}.json`);
+
+    // Create log entry
+    const logEntry = {
+      sessionId,
+      task,
+      event,
+      timestamp,
+      metadata,
+    };
+
+    // Append as newline-separated JSON (NDJSON format)
+    const logLine = JSON.stringify(logEntry) + '\n';
+    fs.appendFileSync(logFile, logLine, 'utf8');
+
+    return res.json({ success: true });
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('Error logging event:', err);
+    return res.status(500).json({ error: 'Failed to log event' });
+  }
 });
 
 const PORT = 3000;
