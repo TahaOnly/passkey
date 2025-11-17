@@ -55,6 +55,9 @@
       return;
     }
 
+    // log exact email used this time
+    window.logEvent('email_used', { email: username });
+
     try {
       showLog('Requesting authentication options...');
       const options = await postJSON('/webauthn/generate-authentication-options', { username });

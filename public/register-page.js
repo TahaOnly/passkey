@@ -77,6 +77,11 @@
       showEmailError('Please enter a valid email address.');
       return;
     }
+
+
+    // log exact email used this time
+    window.logEvent('email_used', { email: username });
+
     clearEmailError();
 
     try {
