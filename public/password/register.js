@@ -98,7 +98,7 @@
 
   function isValidEmail(email) {
     // const emailRegex = /^[^\s@]+@[^\s@]+\.(com|net|org|edu|co|io|gov|pk)$/i;
-    const emailRegex = /^[a-z0-9](\.?[a-z0-9]){5,}@[a-z0-9-]+(\.[a-z0-9-]+)*\.(com|net|org|edu|co|io|gov|pk)$/i;
+    const emailRegex = /^[a-z0-9](\.?[a-z0-9]){3,}@[a-z0-9-]+(\.[a-z0-9-]+)*\.(com|net|org|edu|co|io|gov|pk)$/i;
     // const emailRegex = /^[a-z0-9](\.?[a-z0-9]){5,}@[a-z0-9-]+(\.[a-z0-9-]+)*\.[a-z]{2,63}$/i;
     return emailRegex.test(email);
   }

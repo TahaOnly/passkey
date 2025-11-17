@@ -21,11 +21,29 @@
       <div class="max-w-xl mx-auto bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
         <h2 class="text-3xl font-extrabold text-slate-900">Create account</h2>
 
-        <label for="email" class="block mt-6 text-sm font-medium text-slate-700">Email</label>
-        <input id="email" type="email" placeholder="Enter email" class="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600" />
-        <p id="emailError" class="mt-2 text-sm text-red-600 hidden">Please enter a valid email address.</p>
+        <form id="registerForm" class="mt-6 space-y-6">
+          <div>
+            <label for="email" class="block text-sm font-medium text-slate-700">Email</label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              placeholder="Enter email"
+              autocomplete="email"
+              required
+              class="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600"
+            />
+          </div>
+          <p id="registerMessage" class="text-sm h-5 text-center text-red-600"></p>
 
-        <button id="registerBtn" class="mt-6 w-full rounded-xl bg-blue-600 text-white text-lg font-semibold py-3 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-600">Create Account</button>
+          <button
+            id="registerBtn"
+            type="submit"
+            class="w-full rounded-xl bg-blue-600 text-white text-lg font-semibold py-3 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-600"
+          >
+            Create Account
+          </button>
+        </form>
 
         <p class="mt-6 text-center text-slate-600">Already have an account? <a href="/login.html" class="text-blue-600 hover:underline">Sign in</a></p>
       </div>

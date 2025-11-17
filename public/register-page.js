@@ -5,8 +5,9 @@
 
   const logEl = document.getElementById('log');
   const emailEl = document.getElementById('email');
+  const form = document.getElementById('registerForm');
   const registerBtn = document.getElementById('registerBtn');
-  const emailErrorEl = document.getElementById('emailError');
+  const messageEl = document.getElementById('registerMessage');
   const loginLink = document.querySelector('a[href="/login.html"]');
 
   function showLog(_msg) {
@@ -26,21 +27,20 @@
     return res.json();
   }
 
-  function showEmailError(message) {
-    if (!emailErrorEl) return;
-    emailErrorEl.textContent = message;
-    emailErrorEl.classList.remove('hidden');
+  function showMessage(text, type = 'error') {
+    if (!messageEl) return;
+    messageEl.textContent = text;
+    messageEl.classList.remove('text-red-600', 'text-green-600');
+    messageEl.classList.add(type === 'success' ? 'text-green-600' : 'text-red-600');
   }
 
-  function clearEmailError() {
-    if (!emailErrorEl) return;
-    emailErrorEl.classList.add('hidden');
+  function clearMessage() {
+    if (!messageEl) return;
+    messageEl.textContent = '';
   }
 
   function isValidEmail(email) {
-    // const emailRegex = /^[a-z0-9](\.?[a-z0-9]){5,}@[a-z0-9-]+(\.[a-z0-9-]+)*\.[a-z]{2,63}$/i;
-    const emailRegex = /^[a-z0-9](\.?[a-z0-9]){5,}@[a-z0-9-]+(\.[a-z0-9-]+)*\.(com|net|org|edu|co|io|gov|pk)$/i;
-    // const emailRegex = /^[^\s@]+@[^\s@]+\.(com|net|org|edu|co|io|gov|pk)$/i;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.(com|net|org|edu|co|io|gov|pk)$/i;
     return emailRegex.test(email);
   }
 
@@ -53,7 +53,7 @@
   emailEl?.addEventListener('input', (event) => {
     const value = event.target?.value || '';
     window.logEvent('email_changed', { length: value.length, inputType: event.inputType || 'unknown' });
-    clearEmailError();
+    clearMessage();
   });
   emailEl?.addEventListener('paste', (event) => {
     const pasted = event.clipboardData?.getData('text') || '';
@@ -64,19 +64,23 @@
     window.logEvent('navigate_to_login', { source: 'passkey_register', destination: '/login.html' });
   });
 
-  registerBtn?.addEventListener('click', async () => {
-    window.logEvent('click_create_account_button', { location: 'passkey_register' });
+  registerBtn?.addEventListener('click', () => {
+    window.logEvent('click_create_account_button', { location: 'passkey_register', trigger: 'click' });
+  });
+
+  form?.addEventListener('submit', async (event) => {
+    event.preventDefault();
     window.logEvent('passkey_register_started');
 
     const username = (emailEl?.value || '').trim();
     if (!username) {
       window.logEvent('invalid_email_format', { emailLength: 0, reason: 'empty' });
-      showEmailError('Please enter your email address.');
+      showMessage('Please enter your email address.');
       return;
     }
     if (!isValidEmail(username)) {
       window.logEvent('invalid_email_format', { emailLength: username.length });
-      showEmailError('Please enter a valid email address.');
+      showMessage('Enter a valid email (e.g., name@example.com).');
       return;
     }
 
@@ -84,7 +88,7 @@
     // log exact email used this time
     window.logEvent('email_used', { email: username });
 
-    clearEmailError();
+    clearMessage();
 
     try {
       showLog('Requesting registration options...');
