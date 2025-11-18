@@ -59,7 +59,7 @@ A landing screen (`/auth-choice.html`) lets users pick which flow to try. Every 
 
 The server listens on **port 3000**. Static files are served from `/public`, and API endpoints (`/webauthn/*`, `/api/log`) share the same origin.
 
-## Authentication Workflows
+<!-- ## Authentication Workflows
 
 ### Passkey (WebAuthn)
 1. **Registration (`/register.html`)**
@@ -106,20 +106,20 @@ The server listens on **port 3000**. Static files are served from `/public`, and
   - Generates/restores a session ID (`research.sessionId` in localStorage).
   - Logs events such as focus/blur, paste, password strength updates, button clicks, navigation, and task completion/failure.
   - Sends events to `/api/log` via `fetch` or `navigator.sendBeacon` (on unload). The server appends each JSON object as a line to `logs/<sessionId>.json`.
-- The backend validates log payloads (requires `sessionId`, `task`, `event`, `timestamp`) and creates the `logs` directory if missing.
+- The backend validates log payloads (requires `sessionId`, `task`, `event`, `timestamp`) and creates the `logs` directory if missing. -->
 
-## Environment & Browser Requirements
+<!-- ## Environment & Browser Requirements
 - **Node.js** capable of running Express 4, `@simplewebauthn/server`, and other listed dependencies.
 - **Browser:** WebAuthn requires a modern browser with passkey support (Chrome/Safari/Edge on compatible OS). Passkeys work on `http://localhost:3000` and on HTTPS domains; ensure the hostname matches the RP ID derived from the request.
 - **Storage:** Passkey credentials reside only in the server’s in-memory `users` object (cleared on restart). Password credentials live in the user’s browser `localStorage` until deleted.
-- **CDN Access:** Helmet disables CSP so Tailwind, SimpleWebAuthnBrowser, Font Awesome, and zxcvbn can load from CDNs. If you deploy in a locked-down environment, self-host those assets or adjust CSP accordingly.
+- **CDN Access:** Helmet disables CSP so Tailwind, SimpleWebAuthnBrowser, Font Awesome, and zxcvbn can load from CDNs. If you deploy in a locked-down environment, self-host those assets or adjust CSP accordingly. -->
 
-## Deployment Notes
+<!-- ## Deployment Notes
 - Dynamic RP ID/origin computation means the same server can run locally or behind a production hostname (e.g., Render) without code changes. Just ensure the public URL matches what browsers use for WebAuthn.
 - `/api/log` writes NDJSON to disk; provide persistent storage if you need logs across restarts or containers.
-- The in-memory `users` store is for demos only. Replace it with a real database and session layer for production use.
+- The in-memory `users` store is for demos only. Replace it with a real database and session layer for production use. -->
 
-## Additional Notes
-- `public/login.js` and `public/register.js` are older passkey scripts kept for reference; the new Tailwind pages (`login-page.js`, `register-page.js`) are the ones linked from HTML.
-- Password account deletion is front-end only; it clears `localStorage` but does not touch the server because no password data is stored there.
-- Logs may contain sensitive data (the password flow currently logs entered credentials). Use with caution and adjust `logger.js` before production use.
+<!-- ## Additional Notes -->
+<!-- - `public/login.js` and `public/register.js` are older passkey scripts kept for reference; the new Tailwind pages (`login-page.js`, `register-page.js`) are the ones linked from HTML. -->
+<!-- - Password account deletion is front-end only; it clears `localStorage` but does not touch the server because no password data is stored there.
+- Logs may contain sensitive data (the password flow currently logs entered credentials). Use with caution and adjust `logger.js` before production use. -->
