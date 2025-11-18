@@ -14,7 +14,7 @@
   signOutBtn?.addEventListener('click', () => {
     window.logEvent('click_sign_out_button', { location: 'passkey_account' });
     localStorage.removeItem('demo.username');
-    window.location.href = '/login.html';
+    window.location.href = '/passkey/login.html';
   });
 
   deleteBtn?.addEventListener('click', async () => {
@@ -43,7 +43,7 @@
       if (noteEl) {
         noteEl.textContent = 'Account removed from the demo server. To fully revoke the passkey, delete it from your device\'s Password Manager.';
       }
-      setTimeout(() => (window.location.href = '/register.html'), 1000);
+      setTimeout(() => (window.location.href = '/passkey/register.html'), 1000);
     } catch (err) {
       window.logEvent('delete_error', {
         error: err?.message || String(err),

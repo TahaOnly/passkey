@@ -8,7 +8,7 @@
   const form = document.getElementById('loginForm');
   const loginBtn = document.getElementById('loginBtn');
   const messageEl = document.getElementById('loginMessage');
-  const registerLink = document.querySelector('a[href="/register.html"]');
+  const registerLink = document.querySelector('a[href="/passkey/register.html"]');
 
   function showLog(_msg) {
     if (!logEl) return;
@@ -61,7 +61,7 @@
   });
 
   registerLink?.addEventListener('click', () => {
-    window.logEvent('navigate_to_register', { source: 'passkey_login', destination: '/register.html' });
+    window.logEvent('navigate_to_register', { source: 'passkey_login', destination: '/passkey/register.html' });
   });
 
   loginBtn?.addEventListener('click', () => {
@@ -114,7 +114,7 @@
           emailLength: username.length,
           credentialId: assertionResponse?.id || 'unknown',
         });
-        window.location.href = '/success.html';
+        window.location.href = '/passkey/success.html';
       } else {
         window.logEvent('passkey_login_error', { error: 'verification_failed' });
         window.logTaskFailure({ error: 'verification_failed' });

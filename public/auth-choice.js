@@ -13,8 +13,8 @@
 
   passkeyBtn?.addEventListener('click', () => {
     window.logEvent('click_continue_with_passkey', { source: 'auth_choice' });
-    window.logEvent('navigate_to_login', { destination: '/login.html', method: 'passkey' });
-    window.location.href = '/login.html';
+    window.logEvent('navigate_to_login', { destination: '/passkey/login.html', method: 'passkey' });
+    window.location.href = '/passkey/login.html';
   });
 })();
 

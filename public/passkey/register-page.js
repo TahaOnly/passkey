@@ -8,7 +8,7 @@
   const form = document.getElementById('registerForm');
   const registerBtn = document.getElementById('registerBtn');
   const messageEl = document.getElementById('registerMessage');
-  const loginLink = document.querySelector('a[href="/login.html"]');
+  const loginLink = document.querySelector('a[href="/passkey/login.html"]');
 
   function showLog(_msg) {
     if (!logEl) return;
@@ -40,7 +40,7 @@
   }
 
   function isValidEmail(email) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.(com|net|org|edu|co|io|gov|pk)$/i;
+    const emailRegex = /^[a-z0-9](\.?[a-z0-9]){3,}@[a-z0-9-]+(\.[a-z0-9-]+)*\.(com|net|org|edu|co|io|gov|pk)$/i;
     return emailRegex.test(email);
   }
 
@@ -61,7 +61,7 @@
   });
 
   loginLink?.addEventListener('click', () => {
-    window.logEvent('navigate_to_login', { source: 'passkey_register', destination: '/login.html' });
+    window.logEvent('navigate_to_login', { source: 'passkey_register', destination: '/passkey/login.html' });
   });
 
   registerBtn?.addEventListener('click', () => {
@@ -119,7 +119,7 @@
         });
 
         // Redirect to sign-in so user can authenticate next
-        window.location.replace('/login.html');
+        window.location.replace('/passkey/login.html');
       } else {
         window.logEvent('passkey_register_error', { error: 'verification_failed' });
         window.logTaskFailure({ error: 'verification_failed' });
