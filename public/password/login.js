@@ -180,9 +180,9 @@
       });
 
       // Persist login state in localStorage with a 12-hour expiry.
-      setWithExpiry('password.isLoggedIn', 'true', 0.1);
-      setWithExpiry('password.userEmail', email, 0.1);
-      setWithExpiry('password.userPassword', password, 0.1);
+      setWithExpiry('password.isLoggedIn', 'true', 6);
+      setWithExpiry('password.userEmail', email, 6);
+      setWithExpiry('password.userPassword', password, 6);
       showMessage('✅ Login successful! Redirecting...', 'success');
       setTimeout(() => {
         window.location.href = '/password/account.html';

@@ -57,7 +57,7 @@
     if (!sessionId) {
       sessionId = generateUUID();
       // store session id for 12 hours
-      setWithExpiry('research.sessionId', sessionId, 0.1);
+      setWithExpiry('research.sessionId', sessionId, 6);
       sendLog(sessionId, 'system', 'session_initialized', now, {});
     } else {
       sendLog(sessionId, 'system', 'session_restored', now, {});

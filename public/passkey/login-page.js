@@ -142,7 +142,7 @@
           credentialId: assertionResponse?.id || 'unknown',
         });
         // Persist demo username with a 12-hour expiry
-        setWithExpiry('demo.username', username, 0.1);
+        setWithExpiry('demo.username', username, 6);
         window.logTaskCompletion(true, {
           emailLength: username.length,
           credentialId: assertionResponse?.id || 'unknown',
