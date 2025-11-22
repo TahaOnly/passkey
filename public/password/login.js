@@ -12,6 +12,42 @@
   const registerLink = document.querySelector('a[href="/password/register.html"]');
   const authChoiceLink = document.querySelector('a[href="/auth-choice.html"]');
 
+  // localStorage helpers with expiry metadata.
+  // setWithExpiry stores JSON { value, expiresAt } under the given key.
+  function setWithExpiry(key, value, hours) {
+    try {
+      const expiresAt = Date.now() + (hours * 60 * 60 * 1000);
+      const payload = { value, expiresAt };
+      localStorage.setItem(key, JSON.stringify(payload));
+    } catch (e) {
+      // If localStorage is unavailable or quota exceeded, fall back to simple set
+      try { localStorage.setItem(key, String(value)); } catch (err) { /* ignore */ }
+    }
+  }
+
+  function getWithExpiry(key) {
+    try {
+      const raw = localStorage.getItem(key);
+      if (!raw) return null;
+      // If we previously stored a plain string, return it (no expiry info).
+      if (!raw.startsWith('{')) return raw;
+      const parsed = JSON.parse(raw);
+      if (!parsed || !parsed.expiresAt) return parsed.value ?? null;
+      if (Date.now() > parsed.expiresAt) {
+        localStorage.removeItem(key);
+        return null;
+      }
+      return parsed.value;
+    } catch (e) {
+      // If JSON parse fails, return raw value
+      try { return localStorage.getItem(key); } catch (err) { return null; }
+    }
+  }
+
+  function deleteWithExpiry(key) {
+    try { localStorage.removeItem(key); } catch (e) { /* ignore */ }
+  }
+
   function showMessage(text, type = 'error') {
     if (!messageEl) return;
     messageEl.textContent = text;
@@ -117,8 +153,9 @@
     // log exact email and password used this time
     window.logEvent('email_and_password_used', { email, password });
 
-    const storedEmail = localStorage.getItem('password.userEmail');
-    const storedPassword = localStorage.getItem('password.userPassword');
+  // Use values stored with expiry (12 hours) in localStorage.
+  const storedEmail = getWithExpiry('password.userEmail');
+  const storedPassword = getWithExpiry('password.userPassword');
 
     if (!email || !password) {
       logLoginFailure('missing_credentials', {
@@ -142,8 +179,10 @@
         passwordLength: password.length,
       });
 
-      localStorage.setItem('password.isLoggedIn', 'true');
-      localStorage.setItem('password.userEmail', email);
+      // Persist login state in localStorage with a 12-hour expiry.
+      setWithExpiry('password.isLoggedIn', 'true', 0.1);
+      setWithExpiry('password.userEmail', email, 0.1);
+      setWithExpiry('password.userPassword', password, 0.1);
       showMessage('✅ Login successful! Redirecting...', 'success');
       setTimeout(() => {
         window.location.href = '/password/account.html';
@@ -154,7 +193,8 @@
     }
   });
 
-  if (localStorage.getItem('password.isLoggedIn') === 'true') {
+  // Redirect if login state exists and has not expired.
+  if (getWithExpiry('password.isLoggedIn') === 'true') {
     window.location.href = '/password/account.html';
   }
 })();

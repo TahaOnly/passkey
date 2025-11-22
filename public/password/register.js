@@ -292,7 +292,7 @@
       return;
     }
 
-    if (passwordLength == email) {
+    if (password == email) {
       logSubmissionFailure('password_and_email_are_the_same', { password, email });
       showMessage('Password and email cannot be the same.');
       return;

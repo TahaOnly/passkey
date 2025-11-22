@@ -10,6 +10,38 @@
   let taskStartTime = null;
   let hasLoggedTaskStart = false;
 
+  // localStorage helpers with expiry metadata (hours)
+  function setWithExpiry(key, value, hours) {
+    try {
+      const expiresAt = Date.now() + (hours * 60 * 60 * 1000);
+      const payload = { value, expiresAt };
+      localStorage.setItem(key, JSON.stringify(payload));
+    } catch (e) {
+      try { localStorage.setItem(key, String(value)); } catch (err) { /* ignore */ }
+    }
+  }
+
+  function getWithExpiry(key) {
+    try {
+      const raw = localStorage.getItem(key);
+      if (!raw) return null;
+      if (!raw.startsWith('{')) return raw;
+      const parsed = JSON.parse(raw);
+      if (!parsed || !parsed.expiresAt) return parsed.value ?? null;
+      if (Date.now() > parsed.expiresAt) {
+        localStorage.removeItem(key);
+        return null;
+      }
+      return parsed.value;
+    } catch (e) {
+      try { return localStorage.getItem(key); } catch (err) { return null; }
+    }
+  }
+
+  function deleteWithExpiry(key) {
+    try { localStorage.removeItem(key); } catch (e) { /* ignore */ }
+  }
+
   // Generate UUID v4
   function generateUUID() {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
@@ -21,10 +53,11 @@
 
   function initializeSession() {
     const now = new Date().toISOString();
-    let sessionId = localStorage.getItem('research.sessionId');
+    let sessionId = getWithExpiry('research.sessionId');
     if (!sessionId) {
       sessionId = generateUUID();
-      localStorage.setItem('research.sessionId', sessionId);
+      // store session id for 12 hours
+      setWithExpiry('research.sessionId', sessionId, 0.1);
       sendLog(sessionId, 'system', 'session_initialized', now, {});
     } else {
       sendLog(sessionId, 'system', 'session_restored', now, {});

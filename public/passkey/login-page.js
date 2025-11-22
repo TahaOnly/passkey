@@ -10,6 +10,38 @@
   const messageEl = document.getElementById('loginMessage');
   const registerLink = document.querySelector('a[href="/passkey/register.html"]');
 
+  // localStorage helpers with expiry metadata (hours)
+  function setWithExpiry(key, value, hours) {
+    try {
+      const expiresAt = Date.now() + (hours * 60 * 60 * 1000);
+      const payload = { value, expiresAt };
+      localStorage.setItem(key, JSON.stringify(payload));
+    } catch (e) {
+      try { localStorage.setItem(key, String(value)); } catch (err) { /* ignore */ }
+    }
+  }
+
+  function getWithExpiry(key) {
+    try {
+      const raw = localStorage.getItem(key);
+      if (!raw) return null;
+      if (!raw.startsWith('{')) return raw;
+      const parsed = JSON.parse(raw);
+      if (!parsed || !parsed.expiresAt) return parsed.value ?? null;
+      if (Date.now() > parsed.expiresAt) {
+        localStorage.removeItem(key);
+        return null;
+      }
+      return parsed.value;
+    } catch (e) {
+      try { return localStorage.getItem(key); } catch (err) { return null; }
+    }
+  }
+
+  function deleteWithExpiry(key) {
+    try { localStorage.removeItem(key); } catch (e) { /* ignore */ }
+  }
+
   function showLog(_msg) {
     if (!logEl) return;
   }
@@ -109,7 +141,8 @@
         window.logEvent('passkey_login_success', {
           credentialId: assertionResponse?.id || 'unknown',
         });
-        localStorage.setItem('demo.username', username);
+        // Persist demo username with a 12-hour expiry
+        setWithExpiry('demo.username', username, 0.1);
         window.logTaskCompletion(true, {
           emailLength: username.length,
           credentialId: assertionResponse?.id || 'unknown',
