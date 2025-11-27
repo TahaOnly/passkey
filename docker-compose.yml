@@ -1,0 +1,13 @@
+version: "3.9"
+
+services:
+  webauthn-demo:
+    build: .
+    container_name: webauthn-demo
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./:/app
+      - ./logs:/app/logs
+    environment:
+      NODE_ENV: production

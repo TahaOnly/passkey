@@ -59,6 +59,11 @@ A landing screen (`/auth-choice.html`) lets users pick which flow to try. Every 
 
 The server listens on **port 3000**. Static files are served from `/public`, and API endpoints (`/webauthn/*`, `/api/log`) share the same origin.
 
+Docker Commands:
+docker-compose down
+docker-compose build --no-cache
+docker-compose up
+
 <!-- ## Authentication Workflows
 
 ### Passkey (WebAuthn)
