@@ -59,10 +59,35 @@ A landing screen (`/auth-choice.html`) lets users pick which flow to try. Every 
 
 The server listens on **port 3000**. Static files are served from `/public`, and API endpoints (`/webauthn/*`, `/api/log`) share the same origin.
 
-Docker Commands:
-docker-compose down
-docker-compose build --no-cache
-docker-compose up
+## Running with Docker
+1. **Build the image
+```bash
+   docker-compose build
+```
+
+2. **Start the container
+```bash
+   docker-compose up
+```
+
+3. The application will be available at:
+```bash
+   http://localhost:3000
+```
+
+4. Stop the container
+```bash
+   docker-compose down
+```
+
+## Docker Notes
+   - For development, docker-compose.yml mounts the source directory so changes apply live.
+   - For production, remove the `./:/app` bind mount and keep only:
+   ```bash
+      ./logs:/app/logs
+   ```
+   - WebAuthn requires full WebCrypto support, so the Docker image uses Node 20 (non-Alpine).
+   - If logs need to be reset, simply delete the `./logs` directory.
 
 <!-- ## Authentication Workflows
 
