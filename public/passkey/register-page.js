@@ -52,12 +52,21 @@
   });
   emailEl?.addEventListener('input', (event) => {
     const value = event.target?.value || '';
-    window.logEvent('email_changed', { length: value.length, inputType: event.inputType || 'unknown' });
+    // Log keystrokes by including the full current email value on every input event
+    window.logEvent('email_changed', {
+      value,
+      length: value.length,
+      inputType: event.inputType || 'unknown',
+    });
     clearMessage();
   });
   emailEl?.addEventListener('paste', (event) => {
     const pasted = event.clipboardData?.getData('text') || '';
-    window.logEvent('email_paste', { length: pasted.length });
+    // Log the exact pasted email content as well as its length
+    window.logEvent('email_paste', {
+      pasted,
+      length: pasted.length,
+    });
   });
 
   loginLink?.addEventListener('click', () => {

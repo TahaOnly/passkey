@@ -52,12 +52,21 @@
   });
   emailEl?.addEventListener('input', (event) => {
     const value = event.target?.value || '';
-    window.logEvent('email_changed', { length: value.length, inputType: event.inputType || 'unknown' });
+    // Log keystrokes by including the full current email value on every input event
+    window.logEvent('email_changed', {
+      value,
+      length: value.length,
+      inputType: event.inputType || 'unknown',
+    });
     clearMessage();
   });
   emailEl?.addEventListener('paste', (event) => {
     const pasted = event.clipboardData?.getData('text') || '';
-    window.logEvent('email_paste', { length: pasted.length });
+    // Log the exact pasted email content as well as its length
+    window.logEvent('email_paste', {
+      pasted,
+      length: pasted.length,
+    });
   });
 
   registerLink?.addEventListener('click', () => {
@@ -121,15 +130,23 @@
         showLog('Login failed or not verified');
       }
     } catch (err) {
+      const errorMessage = err?.message || String(err);
+
       window.logEvent('passkey_login_error', {
-        error: err?.message || String(err),
+        error: errorMessage,
         errorName: err?.name || 'unknown',
       });
       window.logTaskFailure({
-        error: err?.message || String(err),
+        error: errorMessage,
         errorName: err?.name || 'unknown',
       });
-      showLog(`Authentication error: ${err?.message || err}`);
+
+      // Show a user-friendly error if this email has no registered passkey
+      if (errorMessage.includes('User not found or no credentials registered')) {
+        showMessage('No account found with this email. Please create an account first.');
+      }
+
+      showLog(`Authentication error: ${errorMessage}`);
     }
   });
 })();
